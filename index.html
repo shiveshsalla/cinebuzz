@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CineBuzz - Home</title>
+  <style>
+   body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(20,20,20,0.95)),
+              url('https://images.unsplash.com/photo-1608889175610-268781d0826a?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #f5f5f5;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.btn-container {
+  display: flex;
+  justify-content: center;
+}
+    h1 {
+      font-size: 3.2em;
+      margin-bottom: 15px;
+      color: #ffcc00;
+      text-shadow: 0 0 12px rgba(255,204,0,0.6);
+    }
+    p {
+      font-size: 1.2em;
+      margin-bottom: 40px;
+      color: #ccc;
+    }
+    .btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 14px 30px;
+      background-color: #ffcc00;
+      color: #111;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+    .btn:hover {
+      background-color: #ffaa00;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+    }
+    footer {
+      margin-top: 60px;
+      font-size: 0.9em;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎬 Welcome to CineBuzz</h1>
+  <p>Discover, Rate, Review. Your movie world, all in one place!</p>
+  <div class="btn-container">
+  <a href="signup.html" class="btn">Sign Up</a>
+  <a href="login.html" class="btn">Login</a>
+  </div>
+  <footer>
+    <p>© 2025 CineBuzz | Discover, Rate & Review Movies</p>
+  </footer>
+</body>
+</html>

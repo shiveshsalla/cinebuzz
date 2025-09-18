@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CineBuzz - Top Rated Movies</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+      color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      background: #111;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffcc00;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logo:hover {
+      color: #ffaa00;
+      text-shadow: 0 0 8px rgba(255,204,0,0.8);
+    }
+    .menu-icon {
+      font-size: 26px;
+      cursor: pointer;
+      color: #f5f5f5;
+      transition: transform 0.2s, color 0.3s;
+    }
+    .menu-icon:hover {
+      color: #ffcc00;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 65px;
+      right: 30px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+      min-width: 180px;
+      overflow: hidden;
+    }
+    .dropdown a {
+      display: block;
+      padding: 14px 18px;
+      text-decoration: none;
+      color: #f5f5f5;
+      font-weight: 600;
+      transition: background 0.25s, color 0.25s;
+    }
+    .dropdown a:hover {
+      background: #333;
+      color: #ffcc00;
+    }
+    .show { display: block; }
+
+    /* ===== PAGE HEADING ===== */
+    h1 {
+      text-align: center;
+      margin: 30px 0 10px;
+      font-size: 28px;
+      color: #ffcc00;
+      text-shadow: 0 0 8px rgba(255,204,0,0.8);
+    }
+
+    /* ===== MOVIES GRID ===== */
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 40px;
+      padding: 40px;
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .movie-card {
+      background: rgba(26,26,26,0.9);
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s;
+      backdrop-filter: blur(6px);
+    }
+    .movie-card:hover {
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 0 18px rgba(255, 204, 0, 0.6);
+    }
+    .movie-card img {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      transition: transform 0.3s ease;
+    }
+    .movie-card:hover img {
+      transform: scale(1.03);
+    }
+    .movie-card h3 {
+      margin: 8px 0 4px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .movie-card .rating {
+      font-size: 15px;
+      color: #ffcc00;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVIGATION BAR ===== -->
+  <nav>
+    <div class="logo" onclick="window.location.href='top-rated.html'">🍿 CineBuzz</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    <div id="menuDropdown" class="dropdown">
+      <a href="movies.html">Home</a>
+      <a href="index.html" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <h1>🎬 Top 10 Movies</h1>
+
+  <div id="topMoviesContainer" class="movies-grid"></div>
+
+<script>
+ // Toggle dropdown menu
+  function toggleMenu() {
+    document.getElementById("menuDropdown").classList.toggle("show");
+  }
+  // Close menu if clicked outside
+  window.onclick = function(event) {
+    if (!event.target.matches('.menu-icon')) {
+      let dropdown = document.getElementById("menuDropdown");
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      }
+    }
+  }
+  async function loadTopRatedMovies() {
+    try {
+      let res = await fetch("http://4.187.192.34:3000/movies");
+      let movies = await res.json();
+
+      // Fetch ratings for each movie
+      let ratedMovies = await Promise.all(movies.map(async (m) => {
+        let ratingRes = await fetch(`http://4.187.192.34:3000/movieRating/${m.MovieID}`);
+        let ratingData = await ratingRes.json();
+        return {
+          ...m,
+          avgRating: ratingData.avgRating || 0,
+          totalRatings: ratingData.totalRatings || 0
+        };
+      }));
+
+      // Sort by rating (desc)
+      ratedMovies.sort((a, b) => b.avgRating - a.avgRating);
+
+      // Only take top 10
+      let top10 = ratedMovies.slice(0, 10);
+
+      let container = document.getElementById("topMoviesContainer");
+      container.innerHTML = "";
+
+      top10.forEach(movie => {
+        let movieDiv = document.createElement("div");
+         movieDiv.classList.add("movie-card");
+
+        movieDiv.innerHTML = `
+          <img src="${movie.PosterUrl || ''}" alt="${movie.Title} Poster">
+          <h3>${movie.Title}</h3>
+          <p class="rating">⭐ ${movie.avgRating.toFixed(1)}/5 (${movie.totalRatings} ratings)</p>
+        `;
+
+       movieDiv.addEventListener("click", () => {
+        window.location.href = `details.html?id=${movie.MovieID}`;
+        });
+
+        container.appendChild(movieDiv);
+      });
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  window.onload = loadTopRatedMovies;
+</script>
+</body>
+</html>

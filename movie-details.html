@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CineBuzz - Movie Details</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0d0d0d;
+      color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      background-color: #1a1a1a;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #ffcc00;
+      cursor: pointer;
+    }
+    .logout-btn {
+      color: #fff;
+      text-decoration: none;
+      font-size: 22px;
+      font-weight: bold;
+      transition: color 0.3s ease, transform 0.2s ease;
+    }
+
+     .logout-btn:hover {
+      color: #ffcc00;   /* Highlight yellow */
+      transform: scale(1.05); /* Slight zoom for effect */
+      cursor: pointer;
+    }
+    /* ===== PAGE CONTAINER ===== */
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.7);
+    }
+
+    .movie-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+    }
+    .movie-header img {
+      width: 240px;
+      height: 360px;
+      object-fit: cover; 
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(255,204,0,0.5);
+    }
+    .movie-info {
+      flex: 1;
+    }
+    .movie-info h2 {
+      color: #ffcc00;
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+    .movie-info p {
+      margin: 6px 0;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .rating-box {
+      margin-top: 10px;
+      background: #222;
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: inline-block;
+      font-size: 18px;
+      color: #ffcc00;
+    }
+
+    /* ===== TRAILER SECTION ===== */
+    .trailer-section {
+      margin-top: 30px;
+      background: #111;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(255,204,0,0.2);
+    }
+    .trailer-section h3 {
+      margin-bottom: 15px;
+      color: #ffcc00;
+    }
+    .trailer-section video {
+      width: 100%;
+      max-height: 480px;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    /* ===== REVIEW FORM WRAPPER ===== */
+    .review-box {
+      margin-top: 30px;
+      background: #111;        /* Dark box background */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border: 1px solid #222;  /* Subtle border */
+    }
+
+    /* ===== REVIEW FORM (boxed) ===== */
+    .review-form {
+      margin-top: 30px;
+      background: #111;        /* Dark box background */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border: 1px solid #222;  /* Subtle border */
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .review-form label {
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+
+    .review-form select,
+    .review-form textarea {
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background: #333;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .review-form textarea {
+     min-height: 80px;
+     resize: vertical;
+    }
+
+    .review-form button {
+     background: #ffcc00;
+     color: #000;
+     font-weight: bold;
+     border: none;
+     padding: 10px 18px;
+     border-radius: 6px;
+     cursor: pointer;
+     transition: background 0.2s;
+     align-self: flex-start;
+    }
+
+    .review-form button:hover {
+     background: #ffaa00;
+    }
+
+    /* ===== REVIEWS PREVIEW ===== */
+    .reviews {
+      margin-top: 25px;
+    }
+    .review {
+      background: #222;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
+    .review p {
+      margin: 4px 0;
+    }
+    .review b {
+      color: #ffcc00;
+    }
+    .star {
+      color: #ffcc00;
+    }
+
+    .show-reviews-btn {
+      margin-top: 15px;
+      background: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .show-reviews-btn:hover {
+      background: #ffaa00;
+    }
+
+    /* ===== MODAL ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      overflow: auto;
+    }
+    .modal-content {
+      background: #1a1a1a;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 12px;
+      width: 80%;
+      max-width: 700px;
+      color: #f5f5f5;
+      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-content h3 {
+      color: #ffcc00;
+      margin-top: 0;
+    }
+    .close {
+      color: #fff;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: #ff4444;
+    }
+
+    /* Back button */
+    .back-btn {
+      margin: 20px 30px;
+      background: #444;
+      color: white;
+      border: none;
+      padding: 12px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .back-btn:hover {
+      background: #666;
+    }
+
+    /* ===== TOAST (TOP RIGHT) ===== */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: -350px;
+      background: #333;
+      color: #f5f5f5;
+      padding: 14px 22px;
+      border-radius: 6px;
+      font-size: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 2000;
+      transition: right 0.5s ease, opacity 0.5s ease;
+      opacity: 0;
+      border-left: 6px solid #ffcc00;
+    }
+    .toast.show {
+      right: 20px;
+      opacity: 1;
+    }
+    .toast.error {
+      background: #333;
+    }
+    /* Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid #000;
+      border-top: 3px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav>
+    <div class="logo" onclick="window.location.href='movies.html'">🍿 CineBuzz</div>
+    <div class="logout-btn" onclick="window.location.href='index.html'">Logout</div>
+  </nav>
+
+  <button class="back-btn" onclick="window.location.href='movies.html'">⬅ Back to Movies</button>
+
+  <div class="container" id="movieContainer"></div>
+
+  <!-- Modal for all reviews -->
+  <div id="reviewsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeReviewsModal()">&times;</span>
+      <h3>All Reviews</h3>
+      <div id="reviewsList"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const movieID = params.get("id");
+  let allReviews = [];
+
+  async function loadMovieDetails() {
+    try {
+      let res = await fetch(`http://4.187.192.34:3000/movies`);
+      let movies = await res.json();
+      let movie = movies.find(m => m.MovieID == movieID);
+
+      if (!movie) {
+        document.getElementById("movieContainer").innerHTML = "<p>Movie not found.</p>";
+        return;
+      }
+
+      let container = document.getElementById("movieContainer");
+      container.innerHTML = `
+        <div class="movie-header">
+          <img src="${movie.PosterUrl || ''}" alt="${movie.Title} Poster">
+          <div class="movie-info">
+            <h2>${movie.Title}</h2>
+            <p><b>Genre:</b> ${movie.Genre}</p>
+            <p><b>Director:</b> ${movie.Director}</p>
+            <p><b>Plot:</b> ${movie.Plot}</p>
+            <div id="ratingSection" class="rating-box"></div>
+          </div>
+        </div>
+
+        ${movie.TrailerUrl ? `
+        <div class="trailer-section">
+          <h3>🎬 Watch Trailer</h3>
+          <video controls>
+            <source src="${movie.TrailerUrl}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        ` : ""}
+
+        <div class="review-form">
+          <label>Rate this movie:</label>
+          <select id="rating-${movie.MovieID}">
+            <option value="1">⭐ 1</option>
+            <option value="2">⭐ 2</option>
+            <option value="3">⭐ 3</option>
+            <option value="4">⭐ 4</option>
+            <option value="5">⭐ 5</option>
+          </select>
+          <textarea id="comment-${movie.MovieID}" placeholder="Write your review..."></textarea>
+          <button id ="reviewBtn" onclick="submitReview(${movie.MovieID})">Submit Review</button>
+        </div>
+
+        <div class="reviews" id="reviewsPreview"></div>
+        <button class="show-reviews-btn" onclick="openReviewsModal()">Show All Reviews</button>
+      `;
+
+      loadMovieRating(movie.MovieID);
+      loadReviews(movie.MovieID);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function loadMovieRating(movieID) {
+    try {
+      let res = await fetch(`http://4.187.192.34:3000/movieRating/${movieID}`);
+      let data = await res.json();
+
+      let ratingDiv = document.getElementById("ratingSection");
+      ratingDiv.innerHTML = `
+        ⭐ <b>${data.avgRating}</b>/5 
+        <span style="color:#aaa; font-size:14px;">
+          (${data.totalRatings} ratings)
+        </span>
+      `;
+    } catch (err) {
+      console.error("Error loading rating:", err);
+    }
+  }
+
+  async function loadReviews(movieID) {
+    try {
+      let res = await fetch(`http://4.187.192.34:3000/reviews/${movieID}`);
+      allReviews = await res.json();
+
+      let previewDiv = document.getElementById("reviewsPreview");
+      previewDiv.innerHTML = "";
+      let latest = allReviews.slice(-2).reverse();
+      if (latest.length === 0) {
+        previewDiv.innerHTML = "<p>No reviews yet.</p>";
+      } else {
+        latest.forEach(r => {
+          let div = document.createElement("div");
+          div.classList.add("review");
+          div.innerHTML = `
+            <p><b>User:</b> ${r.Username}</p>
+            <p><b>Rating:</b> <span class="star">${"⭐".repeat(r.Rating)}</span></p>
+            <p>${r.Comment}</p>
+          `;
+          previewDiv.appendChild(div);
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function openReviewsModal() {
+    let reviewsList = document.getElementById("reviewsList");
+    reviewsList.innerHTML = "";
+
+    if (allReviews.length === 0) {
+      reviewsList.innerHTML = "<p>No reviews yet.</p>";
+    } else {
+      allReviews.forEach(r => {
+        let div = document.createElement("div");
+        div.classList.add("review");
+        div.innerHTML = `
+          <p><b>User:</b> ${r.Username}</p>
+          <p><b>Rating:</b> <span class="star">${"⭐".repeat(r.Rating)}</span></p>
+          <p>${r.Comment}</p>
+        `;
+        reviewsList.appendChild(div);
+      });
+    }
+
+    document.getElementById("reviewsModal").style.display = "block";
+  }
+
+  function closeReviewsModal() {
+    document.getElementById("reviewsModal").style.display = "none";
+  }
+
+  window.onclick = function(event) {
+    let modal = document.getElementById("reviewsModal");
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  }
+
+  // ===== TOAST FUNCTION =====
+  function showToast(message, type = "success") {
+    let toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.className = "toast"; // reset
+    if (type === "error") toast.classList.add("error");
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
+
+  async function submitReview(movieID) {
+  let userID = localStorage.getItem("userID");
+  if (!userID) {
+    showToast("⚠️ You must be logged in to submit a review.", "error");
+    return;
+  }
+
+  let rating = document.getElementById(`rating-${movieID}`).value;
+  let comment = document.getElementById(`comment-${movieID}`).value;
+
+  if (!comment) {
+    showToast("⚠ Please write a review before submitting.", "error");
+    return;
+  }
+
+  // 🔹 Get the button & add spinner
+  let btn = document.getElementById("reviewBtn");
+  btn.innerHTML = '<span class="spinner"></span> Submitting...';
+  btn.disabled = true;
+
+  try {
+    let res = await fetch("http://4.187.192.34:3000/addReview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userID, movieID, rating, comment })
+    });
+
+    let data = await res.json();
+    if (res.ok) {
+      loadReviews(movieID);
+      loadMovieRating(movieID);
+      document.getElementById(`comment-${movieID}`).value = "";
+      showToast("✅ Review submitted successfully!", "success");
+    } else {
+      showToast(data.error || "⚠ Error submitting review", "error");
+    }
+  } catch (err) {
+    showToast("❌ Error submitting review", "error");
+  }
+
+  // 🔹 Reset button state
+  btn.innerHTML = "Submit Review";
+  btn.disabled = false;
+}
+
+
+  window.onload = loadMovieDetails;
+</script>
+</body>
+</html>
